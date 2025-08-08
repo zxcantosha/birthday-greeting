@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>🎉 Поздравление 🎉</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    html,body{
+      margin:0;padding:0;width:100%;height:100%;overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#0f172a,#071030);
+      font-family:"Inter",sans-serif;color:#fff;
+    }
+    .wrap{
+      width:100%;height:100%;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;text-align:center;padding:20px;
+    }
+    h1{
+      font-size:clamp(40px,9vw,90px);
+      background:linear-gradient(90deg,#ffbf69,#ff6b6b);
+      -webkit-background-clip:text;color:transparent;margin:0;
+      animation:fadeIn 2s ease;
+    }
+    p{
+      font-size:clamp(20px,5vw,36px);
+      color:rgba(255,255,255,0.85);
+      margin-top:20px;
+    }
+    canvas{position:absolute;inset:0;pointer-events:none;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <div class="wrap">
+    <h1 id="greeting"></h1>
+    <p id="sub"></p>
+  </div>
+  <script>
+    // Инициализация Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    
+    const greetingEl=document.getElementById('greeting');
+    const subEl=document.getElementById('sub');
+    
+    const MESSAGE = tg.initDataUnsafe?.user?.first_name
+      ? `С Днём Рождения, ${tg.initDataUnsafe.user.first_name}!`
+      : 'С Днём Рождения!';
+    
+    const SUB=' Аленаааа ,поздравляю тебя с твоим 18 летием, а также поздравляю с поступлением, желаю хорошей учебы в унике и успешно сдать на права.С днем ,когда ты теперь сможешь покупать пиво!Ты ваще очень крутая и симпапулька ,отдохни как следует перед 1 курсом) Я если что балбес ,который не сдал нормально ничего и разучился запятые ставить,так что не обращай внимания хахах';
+
+    function typeText(el,text,speed=80,cb){
+      let i=0;el.textContent='';
+      const step=()=>{
+        el.textContent+=text[i]||'';i++;
+        if(i<=text.length){setTimeout(step,speed);}else if(cb)cb();
+      };
+      step();
+    }
+    
+    typeText(greetingEl,MESSAGE,100,()=>typeText(subEl,SUB,50));
+    
+    const canvas=document.getElementById('confetti');
+    const ctx=canvas.getContext('2d');
+    let W,H,parts=[];
+    function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}
+    window.addEventListener('resize',()=>{resize();spawn();});resize();
+    
+    function rand(min,max){return Math.random()*(max-min)+min;}
+    function spawn(){
+      parts=[];
+      const colors=['#ff6b6b','#ffd369','#8be26f','#6bd4ff','#c88bff','#ff9fbf'];
+      for(let i=0;i<120;i++){
+        parts.push({x:rand(0,W),y:rand(-H,0),vx:rand(-2,2),vy:rand(2,5),c:colors[Math.floor(rand(0,colors.length))],s:rand(4,8)});
+      }
+    }
+    function draw(){ctx.clearRect(0,0,W,H);for(const p of parts){ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.s,p.s);}}
+    function update(){for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=0.01;if(p.y>H){p.y=rand(-20,-10);p.x=rand(0,W);p.vy=rand(2,5);}}}
+    function loop(){update();draw();requestAnimationFrame(loop);}
+    spawn();loop();
+  </script>
+</body>
+</html>
